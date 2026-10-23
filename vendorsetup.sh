@@ -1,4 +1,16 @@
 #!/bin/bash
+
+	# Patches
+	RET=0
+	cd bootable/recovery
+	git apply ../../device/infinix/Infinix-X6850/patches/0001-Change-haptics-activation-file-path.patch > /dev/null 2>&1 || RET=$?
+	cd ../../
+	if [ $RET -ne 0 ]; then
+		echo "ERROR: Patch is not applied! Maybe it's already patched?"
+	else
+		echo "OK: All patched"
+	fi
+	
 	export FOX_USE_SPECIFIC_MAGISK_ZIP=~/Magisk/Magisk-v28.1.zip
 	export FOX_VIRTUAL_AB_DEVICE=1
 	export FOX_VANILLA_BUILD=1
@@ -23,7 +35,7 @@
 	export OF_STATUS_INDENT_RIGHT=48
 	export OF_ALLOW_DISABLE_NAVBAR=0
 	export OF_CLOCK_POS=1
-
+	
 	# other stuff
 	export OF_QUICK_BACKUP_LIST="/boot:/data"
 	export OF_ENABLE_LPTOOLS=1
