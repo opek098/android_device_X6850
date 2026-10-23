@@ -1,4 +1,69 @@
 #!/bin/bash
+#set -o xtrace
+FDEVICE="X6850"
+
+# Shell compatibility detection
+if [ -n "$ZSH_VERSION" ]; then
+	# Running in ZSH
+	THIS_DEVICE="${@: -1}"
+	SCRIPT_SOURCE="${(%):-%x}"
+	IS_ZSH=1
+elif [ -n "$BASH_VERSION" ]; then
+	# Running in BASH
+	THIS_DEVICE=${BASH_ARGV[2]}
+	SCRIPT_SOURCE="$BASH_SOURCE"
+	IS_ZSH=0
+else
+	echo "ERROR! This script requires bash or zsh."
+	exit 1
+fi
+
+fetch_mt6789_common_repo() {
+	local URL=https://github.com/transsion-mt6789/twrp-device_transsion_mt6789-common.git
+	local common=device/transsion/mt6789-common
+	if [ ! -d $common ]; then
+		echo "Cloning $URL ... to $common"
+		git clone $URL -b fox_12.1-tranos15 $common
+	else
+		echo "Device common repository: \"$common\" found ..."
+	fi
+}
+
+fox_get_target_device() {
+	if [ "$IS_ZSH" -eq 1 ]; then
+		# ZSH implementation
+		local chkdev=$(echo "$SCRIPT_SOURCE" | grep -w "$FDEVICE")
+		if [ -n "$chkdev" ]; then 
+			FOX_BUILD_DEVICE="$FDEVICE"
+		else
+			chkdev=$(set | grep -E "(argv|@)" | grep -w "$FDEVICE")
+			[ -n "$chkdev" ] && FOX_BUILD_DEVICE="$FDEVICE"
+		fi
+	else
+		# BASH implementation
+		local chkdev=$(echo "$SCRIPT_SOURCE" | grep -w "$FDEVICE")
+		if [ -n "$chkdev" ]; then 
+			FOX_BUILD_DEVICE="$FDEVICE"
+		else
+			chkdev=$(set | grep BASH_ARGV | grep -w "$FDEVICE")
+			[ -n "$chkdev" ] && FOX_BUILD_DEVICE="$FDEVICE"
+		fi
+	fi
+}
+
+if [ -z "$1" -a -z "$FOX_BUILD_DEVICE" ]; then
+	fox_get_target_device
+fi
+
+if [ "$1" = "$FDEVICE" -o "$FOX_BUILD_DEVICE" = "$FDEVICE" ]; then
+	if [ -z "$THIS_DEVICE" ]; then
+		if [ "$IS_ZSH" -eq 1 ]; then
+			echo "NOTE: Running in ZSH mode"
+		else
+			echo "ERROR! This script couldn't detect the device properly. Make sure you're using bash or zsh."
+			exit 1
+		fi
+	fi
 
 	# Patches
 	RET=0
