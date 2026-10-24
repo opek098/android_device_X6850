@@ -179,3 +179,7 @@ tran_fp.ko
 tran_expand_key.ko
 tran_auto_test.ko
 sdcard_debug.ko
+adaptive-ts.ko
+focaltech_ft3683g.ko
+gt9916_common.ko
+richtap_haptic_hv.ko
